@@ -42,7 +42,7 @@ public class Ex2Test {
 
     @Test
 
-    public void ex2SearchCancel() throws Exception{
+    public void ex2CheckTitle() throws Exception{
         waitForElementAndClick(
                 By.id("org.wikipedia:id/search_container"),
                 "Cannot find Search field",
@@ -54,13 +54,17 @@ public class Ex2Test {
                 "Cannot enter test value to Search Field",
                 5
         );
-        int numberOfArticles = waitForElementsPresent(
-                By.id("org.wikipedia:id/page_list_item_container"),
+        List<WebElement> webElements = waitForElementsPresent(
+                By.id("org.wikipedia:id/page_list_item_title"),
                 "Cannot find list of articles",
                 10
-        ).size();
+        );
 
-        if (numberOfArticles < 2){throw new Exception("Number Of Articles less than 2");}
+        for (WebElement oneOfWebElements: webElements){
+            if (!oneOfWebElements.getAttribute("text").toLowerCase().contains("java")){
+                throw new Exception("Incorrect Article title found");
+            }
+        }
 
         waitForElementAndClick(
                 By.id("org.wikipedia:id/search_close_btn"),
