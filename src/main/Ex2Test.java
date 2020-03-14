@@ -3,7 +3,6 @@ package main;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.*;
@@ -12,6 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
+import java.util.List;
 
 public class Ex2Test {
 
@@ -40,37 +40,82 @@ public class Ex2Test {
         driver.quit();
     }
 
-
     @Test
 
-    public void Ex2MethodCreation() {
+    public void ex2SearchCancel() throws Exception{
         waitForElementAndClick(
                 By.id("org.wikipedia:id/search_container"),
                 "Cannot find Search field",
-                10);
+                5
+        );
 
-        WebElement titleElement = waitForElementPresent(
-                By.id("org.wikipedia:id/search_src_text"),
-                "Cannot find Search field",
+        waitForElementAndSendKeys(By.id("org.wikipedia:id/search_container"),
+                "Java",
+                "Cannot enter test value to Search Field",
+                5
+        );
+        int numberOfArticles = waitForElementsPresent(
+                By.id("org.wikipedia:id/page_list_item_container"),
+                "Cannot find list of articles",
+                10
+        ).size();
+
+        if (numberOfArticles < 2){throw new Exception("Number Of Articles less than 2");}
+
+        waitForElementAndClick(
+                By.id("org.wikipedia:id/search_close_btn"),
+                "Cannot find search close button",
                 5);
-
-        String search_field_text = titleElement.getAttribute("text");
-
-        Assert.assertEquals(
-                "String in search fiend is not equal 'Search...'",
-                "Search…",
-                search_field_text);
+        waitForElementNotPresent(
+                By.id("org.wikipedia:id/page_list_item_container"),
+                "List of articles still present",
+                10
+        );
     }
 
-    private WebElement waitForElementPresent(By by, String error_message, long timeoutInSeconds) {
+
+
+
+
+    private List<WebElement> waitForElementsPresent(By by, String error_message, long timeoutInSeconds){
         WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
         wait.withMessage(error_message + "\n");
+        return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(by));
+    }
+
+    private WebElement waitForElementPresent(By by, String error_meesage, long timeoutInSeconds){
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.withMessage(error_meesage + "\n");
         return wait.until(ExpectedConditions.presenceOfElementLocated(by));
     }
 
-    private void waitForElementAndClick(By by, String error_message, long timeoutInSeconds) {
+    private WebElement waitForElementPresent(By by, String error_message){
+        return waitForElementPresent(by, error_message, 5);
+    }
+
+    private WebElement waitForElementAndClick(By by, String error_message, long timeoutInSeconds){
 
         WebElement element = waitForElementPresent(by, error_message, timeoutInSeconds);
         element.click();
+        return element;
     }
+    private WebElement waitForElementAndSendKeys(By by, String value, String error_message, long timeoutInSeconds){
+
+        WebElement element = waitForElementPresent(by, error_message, timeoutInSeconds);
+        element.sendKeys(value);
+        return element;
+    }
+
+    private boolean waitForElementNotPresent(By by, String error_message, long timeoutInSeconds){
+        WebDriverWait wait = new WebDriverWait(driver, timeoutInSeconds);
+        wait.withMessage(error_message+"\n");
+        return wait.until(ExpectedConditions.invisibilityOfElementLocated(by));
+    }
+
+    private WebElement waitForElementAndClear(By by, String error_message, long timeoutInSeconds){
+        WebElement element = waitForElementPresent(by, error_message, timeoutInSeconds);
+        element.clear();
+        return element;
+    }
+
 }
